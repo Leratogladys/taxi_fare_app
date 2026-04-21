@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import '../views/home/home_view.dart';
-import '../views/tracking/tracking_view.dart';
-import '../views/change/change_view.dart';
+import 'package:taxi_fare_app/views/main_navigation.dart';
 
 class AppRoutes {
   static const home = '/';
@@ -11,9 +9,9 @@ class AppRoutes {
 
 class AppRouter {
   static Route generateRoute(RouteSettings settings) {
-    switch (settings.name) {
+     switch (settings.name) {
       case AppRoutes.home:
-        return MaterialPageRoute(builder: (_) => const HomeView());
+        return MaterialPageRoute(builder: (_) => const MainNavigation());
 
       case AppRoutes.tracking:
         return MaterialPageRoute(builder: (_) => const TrackingView());
