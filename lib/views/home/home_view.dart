@@ -4,16 +4,16 @@ import '../../core/app_colors.dart';
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
-  @override  
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(  
+    return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text("Taxi Maths Calculator"),
+        title: const Text("Taxi Calculator"),
         backgroundColor: AppColors.background,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16)
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             _card("Status Card"),
@@ -23,7 +23,7 @@ class HomeView extends StatelessWidget {
             _card("Record Payment"),
           ],
         ),
-        ),
+      ),
     );
   }
 
