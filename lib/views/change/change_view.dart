@@ -3,6 +3,19 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/payment_model.dart';
 import '../../viewmodels/payment_viewmodel.dart';
+import '../../viewmodels/stage_viewmodel.dart';
+
+class _TrackedChange {
+  final PaymentModel payment;
+  final VoidCallback onMarkGiven;
+  final String source;
+
+  const _TrackedChange({
+    required this.payment,
+    required this.onMarkGiven,
+    required this.source,
+  });
+}
 
 class ChangeView extends StatelessWidget {
   const ChangeView({super.key});
@@ -10,9 +23,37 @@ class ChangeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final paymentVm = context.watch<PaymentViewmodel>();
-    final entries = paymentVm.paymentsWithChange;
-    final pendingEntries = entries.where((e) => !e.value.completed).toList();
-    final totalPending = paymentVm.totalPendingChange;
+    final stageVm = context.watch<StageViewmodel>();
+
+    final entries = <_TrackedChange>[
+      // Normal trip payments
+      for (final entry in paymentVm.payments.asMap().entries)
+        if (entry.value.change > 0)
+          _TrackedChange(
+            payment: entry.value,
+            source: 'Normal trip',
+            onMarkGiven: () => paymentVm.markChangeAsGiven(entry.key),
+          ),
+
+      // Multi-stage payments
+      for (final stageEntry in stageVm.stages.asMap().entries)
+        for (final paymentEntry in stageEntry.value.payments.asMap().entries)
+          if (paymentEntry.value.change > 0)
+            _TrackedChange(
+              payment: paymentEntry.value,
+              source: '${stageEntry.value.from} → ${stageEntry.value.to}',
+              onMarkGiven: () =>
+                  stageVm.markChangeAsGiven(stageEntry.key, paymentEntry.key),
+            ),
+    ];
+
+    final pendingEntries = entries.where((e) => !e.payment.completed).toList();
+
+    final totalPending = pendingEntries.fold(
+      0,
+      (sum, entry) => sum + entry.payment.change,
+    );
+
     final allGiven = entries.isNotEmpty && pendingEntries.isEmpty;
 
     return Scaffold(
@@ -39,10 +80,9 @@ class ChangeView extends StatelessWidget {
                     (entry) => Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: _ChangeItem(
-                        index: entry.key,
-                        payment: entry.value,
-                        onMarkGiven: () =>
-                            paymentVm.markChangeAsGiven(entry.key),
+                        payment: entry.payment,
+                        source: entry.source,
+                        onMarkGiven: entry.onMarkGiven,
                       ),
                     ),
                   ),
@@ -136,13 +176,13 @@ class _SummaryCard extends StatelessWidget {
 
 // Individual change Item
 class _ChangeItem extends StatelessWidget {
-  final int index;
   final PaymentModel payment;
+  final String source;
   final VoidCallback onMarkGiven;
 
   const _ChangeItem({
-    required this.index,
     required this.payment,
+    required this.source,
     required this.onMarkGiven,
   });
 
@@ -170,7 +210,8 @@ class _ChangeItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${payment.passengers} passengers${payment.passengers == 1 ? '' : 's'}',
+                  '${payment.passengers} '
+                  '${payment.passengers == 1 ? 'passenger' : 'passengers'}',
                   style: TextStyle(
                     color: isGiven ? AppColors.secondary : AppColors.accent,
                     fontWeight: FontWeight.w700,
@@ -183,6 +224,14 @@ class _ChangeItem extends StatelessWidget {
                   style: const TextStyle(
                     color: AppColors.secondary,
                     fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  source,
+                  style: const TextStyle(
+                    color: AppColors.secondary,
+                    fontSize: 11,
                   ),
                 ),
               ],
