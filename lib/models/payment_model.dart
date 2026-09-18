@@ -48,6 +48,5 @@ class PaymentModelAdapter extends TypeAdapter<PaymentModel> {
     writer.writeInt(obj.passengers);
     writer.writeInt(obj.change);
     writer.writeBool(obj.completed);
-
   }
 }

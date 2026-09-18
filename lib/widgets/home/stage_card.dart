@@ -22,7 +22,7 @@ class _StageCardState extends State<StageCard> {
     super.dispose();
   }
 
-  void _submit(BuildContext context) {
+  Future<void> _submit(BuildContext context) async {
     final fareVm = context.read<FareViewmodel>();
     final paymentVm = context.read<PaymentViewmodel>();
 
@@ -34,7 +34,9 @@ class _StageCardState extends State<StageCard> {
 
     if (fare == 0 || seats == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Set seats and fare per seat above first')),
+        const SnackBar(
+          content: Text('Set seats and fare per seat above first'),
+        ),
       );
       return;
     }
@@ -64,14 +66,25 @@ class _StageCardState extends State<StageCard> {
       return;
     }
 
-    paymentVm.addPayment(
+    final error = await paymentVm.addPayment(
       amount: amount,
       passengers: passengers,
       farePerPassengers: fare,
+      totalSeats: seats,
     );
+
+    if (!context.mounted) return;
+
+    if (error != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error)));
+      return;
+    }
 
     _passengersController.clear();
     _amountController.clear();
+
     setState(() {});
   }
 
@@ -83,7 +96,7 @@ class _StageCardState extends State<StageCard> {
     final fare = fareVm.fare.farePerPerson;
     final seats = fareVm.fare.seats;
     final remainingPassengers = seats - paymentVm.passengersPaid;
-    final tripComplete = seats > 0 && remainingPassengers <= 0;
+    final tripComplete = seats > 0 && paymentVm.passengersPaid == seats;
 
     final passengers = int.tryParse(_passengersController.text) ?? 0;
     final amount = int.tryParse(_amountController.text) ?? 0;
@@ -154,10 +167,7 @@ class _StageCardState extends State<StageCard> {
             const SizedBox(height: 16),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                vertical: 14,
-                horizontal: 16,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
@@ -235,10 +245,7 @@ class _StageCardState extends State<StageCard> {
                 ),
                 child: const Text(
                   'Record Payment',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                 ),
               ),
             ),
@@ -248,10 +255,7 @@ class _StageCardState extends State<StageCard> {
           if (paymentVm.payments.isNotEmpty) ...[
             const SizedBox(height: 14),
             Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: 14,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
               decoration: BoxDecoration(
                 color: AppColors.background,
                 borderRadius: BorderRadius.circular(10),
@@ -359,8 +363,8 @@ class _PreviewRow extends StatelessWidget {
     final color = isError
         ? Colors.red.shade700
         : isHighlight
-            ? AppColors.accent
-            : AppColors.secondary;
+        ? AppColors.accent
+        : AppColors.secondary;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -9,8 +9,18 @@ class TrackingView extends StatelessWidget {
 
   String _formatDate(DateTime dt) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final h = dt.hour.toString().padLeft(2, '0');
     final m = dt.minute.toString().padLeft(2, '0');
@@ -22,9 +32,7 @@ class TrackingView extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.card,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Clear history?',
           style: TextStyle(color: AppColors.accent),
@@ -80,8 +88,8 @@ class TrackingView extends StatelessWidget {
         builder: (context, Box<TripModel> box, _) {
           if (box.isEmpty) return const _EmptyState();
 
-          final trips        = box.values.toList().reversed.toList();
-          final totalRevenue = trips.fold(0, (sum, t) => sum + t.totalCollected);
+          final trips = box.values.toList().reversed.toList();
+          final totalRevenue = trips.fold(0, (sum, t) => sum + t.totalRevenue);
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -115,10 +123,7 @@ class _SummaryBanner extends StatelessWidget {
   final int tripCount;
   final int totalRevenue;
 
-  const _SummaryBanner({
-    required this.tripCount,
-    required this.totalRevenue,
-  });
+  const _SummaryBanner({required this.tripCount, required this.totalRevenue});
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +203,9 @@ class _TripCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${trip.fare.seats} seats @ R${trip.fare.farePerPerson}',
+                trip.isMultiStage
+                    ? '${trip.stageCount} stages'
+                    : '${trip.totalSeats} seats @ R${trip.farePerPerson}',
                 style: const TextStyle(
                   color: AppColors.secondary,
                   fontSize: 11,
@@ -206,24 +213,30 @@ class _TripCard extends StatelessWidget {
               ),
             ],
           ),
+
+          if (trip.routeSummary != '— → —') ...[
+            const SizedBox(height: 6),
+            Text(
+              trip.routeSummary,
+              style: const TextStyle(
+                color: AppColors.accent,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           Row(
             children: [
               _TripStat(
-                label: 'Collected',
-                value: 'R${trip.totalCollected}',
+                label: 'Revenue',
+                value: 'R${trip.totalRevenue}',
                 highlight: true,
               ),
               const SizedBox(width: 24),
-              _TripStat(
-                label: 'Passengers',
-                value: '${trip.totalPassengers}',
-              ),
+              _TripStat(label: 'Passengers', value: '${trip.totalPassengers}'),
               const SizedBox(width: 24),
-              _TripStat(
-                label: 'Change given',
-                value: 'R${trip.totalChange}',
-              ),
+              _TripStat(label: 'Change given', value: 'R${trip.totalChange}'),
             ],
           ),
         ],
@@ -259,10 +272,7 @@ class _TripStat extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
-            color: AppColors.secondary,
-            fontSize: 11,
-          ),
+          style: const TextStyle(color: AppColors.secondary, fontSize: 11),
         ),
       ],
     );

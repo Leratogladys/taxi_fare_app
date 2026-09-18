@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/fare_model.dart';
 import '../models/payment_model.dart';
+import '../models/stage_model.dart';
 import '../models/trip_model.dart';
 import '../core/services/hive_service.dart';
 
@@ -10,11 +11,17 @@ class PaymentViewmodel extends ChangeNotifier {
   List<PaymentModel> get payments => _payments;
 
   int get totalPaid => _payments.fold(0, (sum, p) => sum + p.amount);
-
   int get passengersPaid => _payments.fold(0, (sum, p) => sum + p.passengers);
 
   List<MapEntry<int, PaymentModel>> get paymentsWithChange =>
       _payments.asMap().entries.where((e) => e.value.change > 0).toList();
+
+  bool canCompleteTrip(FareModel fare) {
+    return fare.seats > 0 &&
+        _payments.isNotEmpty &&
+        passengersPaid == fare.seats &&
+        totalPendingChange == 0;
+  }
 
   int get totalPendingChange => _payments
       .where((p) => p.change > 0 && !p.completed)
@@ -25,52 +32,112 @@ class PaymentViewmodel extends ChangeNotifier {
   }
 
   void _loadFromHive() {
-    _payments = HiveService.activePaymentBox.values.toList();
+    _payments = HiveService.activePaymentsBox.values.toList();
   }
 
-  void addPayment({
+  Future<String?> addPayment({
     required int amount,
     required int passengers,
     required int farePerPassengers,
-  }) {
+    required int totalSeats,
+  }) async {
+    if (passengers <= 0) {
+      return 'Enter a valid number of passengers';
+    }
+
+    final remainingPassengers = totalSeats - passengersPaid;
+
+    if (passengers > remainingPassengers) {
+      return 'Only $remainingPassengers passenger'
+          '${remainingPassengers == 1 ? '' : 's'} remaining';
+    }
+
     final totalDue = passengers * farePerPassengers;
+
+    if (amount < totalDue) {
+      final shortfall = totalDue - amount;
+
+      return 'Payment is R$shortfall short. '
+          'Partial payments are not supported yet.';
+    }
+
     final change = amount - totalDue;
+
     final payment = PaymentModel(
       amount: amount,
       passengers: passengers,
-      change: change > 0 ? change : 0,
+      change: change,
     );
+
     _payments.add(payment);
-    HiveService.activePaymentBox.add(payment);
+
     notifyListeners();
+    await HiveService.activePaymentsBox.add(payment);
+
+    return null;
   }
 
-  void markChangeAsGiven(int index) {
+  Future<void> markChangeAsGiven(int index) async {
     if (index < 0 || index >= _payments.length) return;
     _payments[index] = _payments[index].copywith(completed: true);
-    HiveService.activePaymentBox.putAt(index, _payments[index]);
 
     notifyListeners();
+
+    await HiveService.activePaymentsBox.putAt(index, _payments[index]);
   }
 
-  void saveAndStartNewTrip(FareModel fare) {
+  Future<void> saveAndStartNewTrip(
+    FareModel fare, {
+    String from = '—',
+    String to = '—',
+  }) async {
     if (_payments.isNotEmpty) {
-      HiveService.tripHistoryBox.add(
-        TripModel(
-          fare: fare,
-          payments: List.from(_payments),
-          completedAt: DateTime.now(),
-        ),
+      final stage = StageModel(
+        from: from,
+        to: to,
+        farePerPerson: fare.farePerPerson,
+        totalSeats: fare.seats,
+        payments: List.from(_payments),
+      );
+      await HiveService.tripHistoryBox.add(
+        TripModel(stages: [stage], completedAt: DateTime.now()),
       );
     }
     _payments.clear();
-    HiveService.activePaymentBox.clear();
     notifyListeners();
+    await HiveService.activePaymentsBox.clear();
   }
 
-  void clear() {
+  Future<void> clear() async {
     _payments.clear();
-    HiveService.activePaymentBox.clear();
     notifyListeners();
+    await HiveService.activePaymentsBox.clear();
+  }
+
+  Future<bool> completeTrip(
+    FareModel fare, {
+    String from = '—',
+    String to = '—',
+  }) async {
+    if (!canCompleteTrip(fare)) return false;
+
+    final stage = StageModel(
+      from: from,
+      to: to,
+      farePerPerson: fare.farePerPerson,
+      totalSeats: fare.seats,
+      payments: List.from(_payments),
+    );
+
+    await HiveService.tripHistoryBox.add(
+      TripModel(stages: [stage], completedAt: DateTime.now()),
+    );
+
+    _payments.clear();
+    notifyListeners();
+
+    await HiveService.activePaymentsBox.clear();
+
+    return true;
   }
 }
