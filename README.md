@@ -1,277 +1,128 @@
-# TaxiMaths 🚕
+# TaxiMaths
 
-A Flutter-based taxi management application designed to simplify fare calculation, passenger payments, and trip tracking for South Africa's informal taxi industry.
+A Flutter application exploring fare calculation, passenger-payment tracking, and change management for South Africa's informal taxi environment.
 
-## Overview
+## Status
 
-TaxiMaths is a mobile application built to help taxi drivers, conductors, and operators manage daily taxi operations more efficiently.
+**In active development.**
 
-The app addresses common challenges in the taxi industry such as manual fare calculations, payment tracking, change management, and revenue visibility.
+The repository separates working application foundations from planned persistence and cloud features so that the current implementation is clear.
 
-The goal is to create an offline-first digital tool that improves accuracy, reduces payment disputes, and simplifies taxi operations.
+## Problem
 
----
+Taxi fare collection often involves fast manual calculations, group payments, change owed to passengers, and repeated trips. TaxiMaths explores how a simple mobile tool can reduce calculation errors and make payment status easier to track.
 
-# Problem
+## Implemented / Current Work
 
-South African taxi operations often rely on manual calculations and memory-based tracking.
+- Flutter and Dart application foundation
+- MVVM-style separation of views, view models, and models
+- Provider-based state-management approach
+- Fare calculation workflows
+- Passenger/payment tracking work
+- Change-management logic
+- Trip-management foundations
+- Navigation and theme structure
 
-This creates challenges such as:
+## Planned
 
-- Incorrect fare calculations
-- Difficulty tracking passenger payments
-- Managing change owed to passengers
-- Tracking daily revenue
-- Delays during busy periods
+The following are roadmap items rather than completed integrations:
 
-TaxiMaths aims to digitize these processes into a simple and practical mobile solution.
+- Hive local persistence
+- Saved routes and trip history
+- Offline-first storage
+- Supabase authentication
+- Supabase cloud synchronisation
+- Fleet-management features
+- Revenue analytics
 
----
+## Tech Stack
 
-# Features
-
-## Current Features 🚧
-
-### Fare Calculation
-
-Calculate total fares based on:
-
-- Number of passengers
-- Fare per passenger
-
-Example:
-10 passengers × R15 = R150
-
----
-
-### Payment Tracking
-
-Record passenger payments and calculate:
-
-- Amount received
-- Remaining balance
-- Change owed
-
----
-
-### Change Management
-
-Track outstanding change and payment completion status.
-
----
-
-### Trip Management
-
-Manage trip information including:
-
-- Passenger groups
-- Fare stages
-- Trip status
-
----
-
-# Planned Features
-
-## Route Library
-
-Save frequently used taxi routes.
-
-Examples:
-Soweto → Johannesburg CBD
-Tembisa → Midrand
-Alexandra → Sandton
-
----
-
-## Reverse Fare Calculation
-
-Calculate passenger count from collected money.
-
-Example:
-
-
-Collected: R450
-Fare: R15
-
-Passengers:
-450 ÷ 15 = 30 passengers
-
----
-
-## Multi-stage Trips
-
-Support journeys with multiple route sections.
-
-Example:
-
-
-Alex → Sandton
-Sandton → Randburg
-
-
----
-
-## Offline-first Storage
-
-Local data storage using Hive.
-
-Future synchronization using Supabase.
-
----
-
-# Technology Stack
-
-## Frontend
+### Implemented
 
 - Flutter
 - Dart
+- MVVM
+- Provider
+
+### Planned Integrations
+
+- Hive
+- Supabase
 
 ## Architecture
 
-- MVVM (Model-View-ViewModel)
-
-## State Management
-
-- Provider
-
-## Local Storage
-
-- Hive (planned)
-
-## Backend
-
-- Supabase (planned)
-
----
-
-# Architecture
-
-TaxiMaths follows an MVVM architecture:
-
-
+```text
 View
-|
-|
+  |
+  v
 ViewModel
-|
-|
+  |
+  v
 Model
+```
 
+This separation keeps presentation code distinct from application state and fare/payment logic.
 
-This separates:
+## Project Structure
 
-- UI components
-- Business logic
-- Data models
-
-Making the application easier to maintain and scale.
-
----
-
-# Project Structure
-
-
+```text
 lib/
-
 ├── core/
-│ ├── constants/
-│ └── theme/
-
 ├── models/
-
 ├── viewmodels/
-
 ├── views/
-
 ├── widgets/
-
 └── routes/
+```
 
+## Product Direction
 
----
+TaxiMaths is intentionally grounded in a local operational problem rather than being a generic calculator demo. The product direction prioritises:
 
-# Design Philosophy
-
-The design direction is inspired by modern transport and fintech applications.
-
-Goals:
-
-- Simple user experience
 - Fast interactions
-- Large touch-friendly components
-- Minimal distractions
-- Practical for taxi rank environments
+- Simple fare calculations
+- Clear payment status
+- Large, practical touch targets
+- Minimal distraction in busy taxi environments
+- Offline-first capability as a future milestone
 
----
+## Development Roadmap
 
-# Screenshots
-
-Coming soon 🚧
-
----
-
-# Development Roadmap
-
-## Phase 1 — Foundation ✅
-
-- MVVM architecture
+### Foundation
+- MVVM structure
 - Navigation
 - Theme system
-- Models
-- ViewModels
+- Models and view models
 
-## Phase 2 — Core Taxi Operations 🚧
-
-- Fare calculations
+### Core Taxi Operations
+- Fare calculation
 - Payment tracking
 - Change management
+- Trip workflows
 
-## Phase 3 — Persistence
-
+### Persistence — Planned
 - Hive local storage
 - Trip history
 - Saved routes
 
-## Phase 4 — Advanced Features
-
-- Route library
-- Analytics
-- Revenue tracking
-
-## Phase 5 — Cloud Features
-
+### Cloud — Planned
 - Supabase authentication
-- Data synchronization
-- Fleet management
+- Data synchronisation
+- Fleet features
 
----
+## Why This Project?
 
-# Why This Project?
+TaxiMaths demonstrates:
 
-TaxiMaths is built as a portfolio project exploring how software can solve real-world problems in local communities.
-
-The project demonstrates:
-
-- Flutter application development
-- MVVM architecture
-- State management
+- Mobile application development
+- State and business-logic separation
 - Product thinking
-- Solving problems within a specific market
+- Designing around a specific South African use case
+- Incremental delivery rather than claiming unfinished features as complete
 
----
+## Author
 
-# Author
+**Lerato Molefe**
 
-Lerato Gladys
-
-GitHub:
-https://github.com/Leratogladys
-
-Portfolio:
-https://leratogladys.github.io/Portfolio
-
----
-
-# License
-
-This project is currently under active development.
+- Portfolio: https://leratogladys.github.io/Portfolio
+- GitHub: https://github.com/Leratogladys
