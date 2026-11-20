@@ -111,24 +111,39 @@ lib/
 ├── core/
 │   └── services/
 │       └── hive_service.dart
+├── main.dart
 ├── models/
 │   ├── fare_model.dart
+│   ├── passanger_group_model.dart (empty placeholder)
 │   ├── payment_model.dart
 │   ├── route_model.dart
 │   ├── stage_model.dart
 │   └── trip_model.dart
 ├── routes/
-│   └── app_router.dart
+│   ├── app_router.dart
+│   ├── route_generator.dart (empty placeholder)
+│   └── route_library_sheet.dart
 ├── viewmodels/
+│   ├── change_viewmodel.dart
 │   ├── fare_viewmodels.dart
 │   ├── payment_viewmodel.dart
 │   ├── route_viewmodel.dart
 │   └── stage_viewmodel.dart
 ├── views/
-├── widgets/
-└── main.dart
+│   ├── change/change_view.dart
+│   ├── home/home_view.dart
+│   ├── main_navigation.dart
+│   └── tracking/tracking_view.dart
+└── widgets/
+    ├── app_button.dart
+    ├── app_text_field.dart (empty placeholder)
+    ├── home/
+    ├── mode_switcher.dart
+    ├── stat_card.dart
+    └── status_card.dart
 
 test/
+└── widget_test.dart
 ```
 
 ## Local Data Persistence
@@ -200,14 +215,14 @@ Run the available tests:
 flutter test
 ```
 
-Feature-specific business-logic and integration test coverage is still a development priority.
+The only committed test is the default Flutter counter increment smoke test. It does not exercise TaxiMaths features; fare, payment, route, change-tracking, trip-history and multi-stage workflows currently have no dedicated automated tests.
 
 ## Current Limitations
 
 - Partial passenger payments are not supported.
 - Cloud synchronization is not implemented.
 - User authentication is not implemented.
-- Automated tests for the application's core business workflows need further development.
+- The committed automated test is only a Flutter counter smoke test; core business workflows have no dedicated automated test coverage.
 - Cross-device data synchronization is not available.
 
 These are known development areas, not currently implemented features.
