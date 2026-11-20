@@ -1,128 +1,249 @@
 # TaxiMaths
 
-A Flutter application exploring fare calculation, passenger-payment tracking, and change management for South Africa's informal taxi environment.
+**A Flutter-based taxi fare and payment management application.**
 
-## Status
+TaxiMaths is designed to simplify fare calculations, passenger payment tracking, change management and trip records in South Africa's minibus taxi environment.
 
-**In active development.**
+The application provides tools for managing individual trips and multi-stage journeys, with locally persisted data using Hive.
 
-The repository separates working application foundations from planned persistence and cloud features so that the current implementation is clear.
+## Project Status
 
-## Problem
+**Active development**
 
-Taxi fare collection often involves fast manual calculations, group payments, change owed to passengers, and repeated trips. TaxiMaths explores how a simple mobile tool can reduce calculation errors and make payment status easier to track.
+The core application includes fare calculation, payment validation, reverse calculations, multi-stage trip management, saved routes, change tracking and trip history.
 
-## Implemented / Current Work
+The project is currently focused on improving functionality, reliability and user experience.
 
-- Flutter and Dart application foundation
-- MVVM-style separation of views, view models, and models
-- Provider-based state-management approach
-- Fare calculation workflows
-- Passenger/payment tracking work
-- Change-management logic
-- Trip-management foundations
-- Navigation and theme structure
+## Features
 
-## Planned
+### 1. Fare Calculation
+- Calculate total fares using passenger numbers and fare per person.
+- Track the number of passengers travelling.
+- Display expected trip revenue.
+- Record passenger payments.
 
-The following are roadmap items rather than completed integrations:
+**Calculation:**
 
-- Hive local persistence
-- Saved routes and trip history
-- Offline-first storage
-- Supabase authentication
-- Supabase cloud synchronisation
-- Fleet-management features
-- Revenue analytics
+`Total Fare = Number of Passengers × Fare per Person`
 
-## Tech Stack
+### 2. Payment Management
+- Record payments against passenger counts.
+- Validate passenger numbers against remaining seats.
+- Calculate change owed to passengers.
+- Identify payment shortfalls.
+- Track outstanding change.
+- Mark change as given.
 
-### Implemented
+Partial payments are not currently supported.
 
-- Flutter
-- Dart
-- MVVM
-- Provider
+### 3. Reverse Calculation
+Calculate the number of passengers represented by a collected amount.
 
-### Planned Integrations
+**Calculation:**
 
-- Hive
-- Supabase
+`Number of Passengers = Total Collected ÷ Fare per Person`
+
+The application also identifies any remainder when the amount is not evenly divisible by the fare.
+
+### 4. Multi-Stage Trips
+- Create trips containing multiple journey stages.
+- Configure individual fares and passenger capacities per stage.
+- Record payments separately for each stage.
+- Track passengers who have paid.
+- Monitor remaining passengers.
+- Calculate outstanding change.
+- Validate trip completion.
+
+### 5. Route Management
+- Save frequently used routes.
+- Store departure and destination information.
+- Associate fares with saved routes.
+- Reuse saved route information.
+- Delete saved routes.
+
+### 6. Change Tracker
+- Track change owed to passengers.
+- Identify outstanding change.
+- Mark change as given.
+- Track change across standard and multi-stage trips.
+
+### 7. Trip History
+- Save completed trips locally.
+- Review previous journey records.
+- View passenger and payment information.
+- Calculate collected revenue and change.
+- Identify single-stage and multi-stage journeys.
+
+## Technology Stack
+
+| Technology | Purpose |
+|---|---|
+| Flutter | Cross-platform application framework |
+| Dart | Programming language |
+| Provider | State management |
+| MVVM | Application architecture |
+| Hive | Local data persistence |
+| Git | Version control |
+| GitHub | Source code hosting |
+
+### Dependencies
+
+- `provider` – application state management.
+- `hive` – local database.
+- `hive_flutter` – Flutter integration for Hive.
+- `cupertino_icons` – Cupertino-style icons.
 
 ## Architecture
 
-```text
-View
-  |
-  v
-ViewModel
-  |
-  v
-Model
-```
+TaxiMaths follows an MVVM-inspired architecture, separating the user interface, application logic and data models.
 
-This separation keeps presentation code distinct from application state and fare/payment logic.
+- **Models:** Represent application data, including fares, payments, stages, routes and trips.
+- **ViewModels:** Manage application state, calculations, validation and interactions with the data layer.
+- **Views:** Present the application interface and user workflows.
+- **Widgets:** Provide reusable interface components.
+- **Services:** Handle infrastructure responsibilities, including local database initialization and access.
+- **Routes:** Manage application navigation.
 
-## Project Structure
+### Project Structure
 
 ```text
 lib/
 ├── core/
+│   └── services/
+│       └── hive_service.dart
 ├── models/
+│   ├── fare_model.dart
+│   ├── payment_model.dart
+│   ├── route_model.dart
+│   ├── stage_model.dart
+│   └── trip_model.dart
+├── routes/
+│   └── app_router.dart
 ├── viewmodels/
+│   ├── fare_viewmodels.dart
+│   ├── payment_viewmodel.dart
+│   ├── route_viewmodel.dart
+│   └── stage_viewmodel.dart
 ├── views/
 ├── widgets/
-└── routes/
+└── main.dart
+
+test/
 ```
 
-## Product Direction
+## Local Data Persistence
 
-TaxiMaths is intentionally grounded in a local operational problem rather than being a generic calculator demo. The product direction prioritises:
+TaxiMaths uses Hive to store application data locally.
 
-- Fast interactions
-- Simple fare calculations
-- Clear payment status
-- Large, practical touch targets
-- Minimal distraction in busy taxi environments
-- Offline-first capability as a future milestone
+The application initializes five data boxes:
 
-## Development Roadmap
+| Box | Purpose |
+|---|---|
+| `active_fare` | Current fare configuration |
+| `active_payments` | Active trip payments |
+| `active_stages` | Active multi-stage trip data |
+| `trip_history` | Completed trip records |
+| `routes` | Saved routes |
 
-### Foundation
-- MVVM structure
-- Navigation
-- Theme system
-- Models and view models
+Hive adapters serialize and deserialize the application's data models.
 
-### Core Taxi Operations
-- Fare calculation
-- Payment tracking
-- Change management
-- Trip workflows
+No cloud synchronization or remote database integration is currently implemented.
 
-### Persistence — Planned
-- Hive local storage
-- Trip history
-- Saved routes
+## Getting Started
 
-### Cloud — Planned
-- Supabase authentication
-- Data synchronisation
-- Fleet features
+### Prerequisites
 
-## Why This Project?
+- Flutter SDK
+- Dart SDK (3.11.0 or compatible)
+- Visual Studio Code or Android Studio
+- An Android emulator, physical device or supported Flutter desktop/web target
 
-TaxiMaths demonstrates:
+### Installation
 
-- Mobile application development
-- State and business-logic separation
-- Product thinking
-- Designing around a specific South African use case
-- Incremental delivery rather than claiming unfinished features as complete
+1. Clone the repository:
+
+```bash
+git clone https://github.com/Leratogladys/taxi_fare_app.git
+```
+
+2. Navigate into the project:
+
+```bash
+cd taxi_fare_app
+```
+
+3. Install dependencies:
+
+```bash
+flutter pub get
+```
+
+4. Run the application:
+
+```bash
+flutter run
+```
+
+### Code Analysis
+
+Run Flutter's static analysis:
+
+```bash
+flutter analyze
+```
+
+### Automated Tests
+
+Run the available tests:
+
+```bash
+flutter test
+```
+
+Feature-specific business-logic and integration test coverage is still a development priority.
+
+## Current Limitations
+
+- Partial passenger payments are not supported.
+- Cloud synchronization is not implemented.
+- User authentication is not implemented.
+- Automated tests for the application's core business workflows need further development.
+- Cross-device data synchronization is not available.
+
+These are known development areas, not currently implemented features.
+
+## Future Development
+
+Potential improvements include:
+
+- Comprehensive unit and widget testing.
+- Improved payment validation and edge-case handling.
+- Enhanced trip reporting and revenue summaries.
+- Further UI and usability improvements.
+- Optional cloud backup and synchronization.
+- Additional data management capabilities.
+
+## Project Motivation
+
+TaxiMaths explores how software development can address practical operational challenges within South Africa's informal public transport sector.
+
+The project demonstrates practical application of:
+
+- Flutter and Dart development.
+- Object-oriented programming.
+- MVVM architecture.
+- State management with Provider.
+- Local database integration.
+- Financial calculations and validation.
+- Persistent application data management.
 
 ## Author
 
 **Lerato Molefe**
 
-- Portfolio: https://leratogladys.github.io/Portfolio
 - GitHub: https://github.com/Leratogladys
+- Portfolio: https://leratogladys.github.io/Portfolio
+
+---
+
+*TaxiMaths — simplifying taxi fare and payment management.*
