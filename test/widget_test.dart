@@ -1,30 +1,46 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:hive/hive.dart';
 import 'package:taxi_fare_app/main.dart';
+import 'package:taxi_fare_app/models/fare_model.dart';
+import 'package:taxi_fare_app/models/payment_model.dart';
+import 'package:taxi_fare_app/models/route_model.dart';
+import 'package:taxi_fare_app/models/stage_model.dart';
+import 'package:taxi_fare_app/models/trip_model.dart';
+
+late Directory hiveTestDirectory;
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    hiveTestDirectory =
+        await Directory.systemTemp.createTemp('taximaths_test_');
+    Hive.init(hiveTestDirectory.path);
+
+    Hive.registerAdapter(FareModelAdapter());
+    Hive.registerAdapter(PaymentModelAdapter());
+    Hive.registerAdapter(StageModelAdapter());
+    Hive.registerAdapter(TripModelAdapter());
+    Hive.registerAdapter(RouteModelAdapter());
+
+    await Hive.openBox<FareModel>('active_fare');
+    await Hive.openBox<PaymentModel>('active_payments');
+    await Hive.openBox<StageModel>('active_stages');
+    await Hive.openBox<TripModel>('trip_history');
+    await Hive.openBox<RouteModel>('routes');
+  });
+
+  tearDownAll(() async {
+    await Hive.close();
+    await hiveTestDirectory.delete(recursive: true);
+  });
+
+  testWidgets('TaxiMaths home screen loads', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Taxi Calculator'), findsOneWidget);
+    expect(find.text('FARE CALCULATION'), findsOneWidget);
   });
 }

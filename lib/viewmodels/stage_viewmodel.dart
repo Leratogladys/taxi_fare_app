@@ -12,7 +12,9 @@ class StageViewmodel extends ChangeNotifier {
   StageModel? get activeStage => _stages.isEmpty ? null : _stages.last;
   int get activeStageIndex => _stages.isEmpty ? -1 : _stages.length - 1;
   bool get activeStageComplete => activeStage?.isComplete ?? false;
-  bool get canAddStage => _stages.isEmpty || activeStageComplete;
+  bool get canAddStage =>
+      _stages.isEmpty ||
+      (activeStageComplete && (activeStage?.totalPendingChange ?? 0) == 0);
 
   int get totalCollected => _stages.fold(0, (sum, s) => sum + s.totalCollected);
   int get totalPassengers =>

@@ -236,6 +236,11 @@ class _ActiveStageCardState extends State<_ActiveStageCard> {
     final due = passengers * stage.farePerPerson;
     final change = amount - due;
     final showPreview = passengers > 0 && amount > 0;
+    final pendingChanges = stage.payments
+        .asMap()
+        .entries
+        .where((entry) => entry.value.change > 0 && !entry.value.completed)
+        .toList();
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -329,6 +334,40 @@ class _ActiveStageCardState extends State<_ActiveStageCard> {
               minHeight: 6,
             ),
           ),
+
+          if (pendingChanges.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ...pendingChanges.map(
+              (entry) => Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text('R${entry.value.change} change to give'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        context.read<StageViewmodel>().markChangeAsGiven(
+                          widget.stageIndex,
+                          entry.key,
+                        );
+                      },
+
+                      child: const Text('Mark as given'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
 
           if (stage.isComplete) ...[
             const SizedBox(height: 16),

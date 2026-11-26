@@ -134,7 +134,12 @@ class _HomeViewState extends State<HomeView> {
     bool completed = false;
 
     if (_mode == FareMode.normal) {
-      completed = await paymentVm.completeTrip(fareVm.fare);
+      final selectedRoute = fareVm.selectedRoute;
+      completed = await paymentVm.completeTrip(
+        fareVm.fare,
+        from: selectedRoute?.from ?? '-',
+        to: selectedRoute?.to ?? '-',
+      );
 
       if (completed) {
         await fareVm.reset();

@@ -14,28 +14,30 @@ class TripStatusCard extends StatelessWidget {
 
     final totalFare = fareVm.fare.seats * fareVm.fare.farePerPerson;
     final totalPaid = paymentVm.totalPaid;
+    final seats = fareVm.fare.seats;
+    final paidSeats = seats > 0 ? paymentVm.passengersPaid.clamp(0, seats) : 0;
+    final paymentProgress = seats > 0 ? (paidSeats / seats).toDouble() : 0.0;
     final tripStarted = totalFare > 0;
-    final allPaid = tripStarted && totalPaid >= totalFare;
+    final allPaid =
+        tripStarted && paymentVm.passengersPaid >= fareVm.fare.seats;
 
     final statusText = !tripStarted
         ? 'No trip started'
         : allPaid
-            ? 'All payments received'
-            : 'Awaiting payments';
-
-    final amountText = tripStarted ? 'R$totalPaid / R$totalFare' : '—';
+        ? 'All payments received'
+        : 'Awaiting payments';
 
     final iconData = !tripStarted
         ? Icons.directions_car_outlined
         : allPaid
-            ? Icons.check
-            : Icons.access_time_outlined;
+        ? Icons.check
+        : Icons.access_time_outlined;
 
     final iconColor = !tripStarted
         ? AppColors.secondary
         : allPaid
-            ? AppColors.primary
-            : const Color(0xFFE07B39); // amber warning
+        ? AppColors.primary
+        : const Color(0xFFE07B39); // amber warning
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -71,10 +73,11 @@ class TripStatusCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(value: paymentProgress, minHeight: 6),
+                const SizedBox(height: 8),
                 Text(
-                  amountText,
-                  style: const TextStyle(color: AppColors.secondary),
+                  '$paidSeats of $seats seats paid  - R$totalPaid collected',
                 ),
               ],
             ),
